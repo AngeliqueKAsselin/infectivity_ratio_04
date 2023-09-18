@@ -1,0 +1,262 @@
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+HV  0.01553    0.73799   0.021   0.9832  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.537817  on 11  degrees of freedom
+Residual deviance: 0.091271  on  8  degrees of freedom
+AIC: 41.707
+
+Number of Fisher Scoring iterations: 3
+
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2, weights = log_total_virus)
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)  
+(Intercept)            0.75079    0.35710   2.102   0.0355 *
+treatmentwol           0.08205    0.50896   0.161   0.8719  
+virusFHV               0.22170    0.51676   0.429   0.6679  
+treatmentwol:virusFHV  0.01553    0.73799   0.021   0.9832  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.537817  on 11  degrees of freedom
+Residual deviance: 0.091271  on  8  degrees of freedom
+AIC: 41.707
+
+Number of Fisher Scoring iterations: 3
+
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2, weights = log_total_virus)
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)  
+(Intercept)            0.75079    0.35710   2.102   0.0355 *
+treatmentwol           0.08205    0.50896   0.161   0.8719  
+virusFHV               0.22170    0.51676   0.429   0.6679  
+treatmentwol:virusFHV  0.01553    0.73799   0.021   0.9832  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.537817  on 11  degrees of freedom
+Residual deviance: 0.091271  on  8  degrees of freedom
+AIC: 41.707
+
+Number of Fisher Scoring iterations: 3
+
+
+Call:  glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2, weights = log_total_virus)
+
+Coefficients:
+          (Intercept)           treatmentwol               virusFHV  treatmentwol:virusFHV  
+              0.75079                0.08205                0.22170                0.01553  
+
+Degrees of Freedom: 11 Total (i.e. Null);  8 Residual
+Null Deviance:	    0.5378 
+Residual Deviance: 0.09127 	AIC: 41.71
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2, weights = log_total_virus)
+
+Coefficients:
+                      Estimate Std. Error z value Pr(>|z|)  
+(Intercept)            0.75079    0.35710   2.102   0.0355 *
+treatmentwol           0.08205    0.50896   0.161   0.8719  
+virusFHV               0.22170    0.51676   0.429   0.6679  
+treatmentwol:virusFHV  0.01553    0.73799   0.021   0.9832  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.537817  on 11  degrees of freedom
+Residual deviance: 0.091271  on  8  degrees of freedom
+AIC: 41.707
+
+Number of Fisher Scoring iterations: 3
+
+# A tibble: 12 × 13
+# Groups:   biol_rep [12]
+   sample tcid50      IU_mL treatment infectivity_ratio virus biol_rep average_infectivity_ratio
+   <chr>   <dbl>      <dbl> <chr>                 <dbl> <chr> <chr>                        <dbl>
+ 1 A2       7     138000000 tet                0.000138 FHV   A                        0.000539 
+ 2 B2       7.39  335600000 tet                0.000336 FHV   B                        0.000716 
+ 3 C2       7.39  335600000 tet                0.000336 FHV   C                        0.000716 
+ 4 D2       7     138000000 wol                0.000138 FHV   D                        0.00192  
+ 5 E2       7.33  297300000 wol                0.000297 FHV   E                        0.00162  
+ 6 F2       7.88 1053000000 wol                0.00105  FHV   F                        0.000962 
+ 7 G1       7.29  268800000 tet                0.000269 DCV   G                        0.000269 
+ 8 H1       7.33  297300000 tet                0.000297 DCV   H                        0.000176 
+ 9 I1       7     138000000 tet                0.000138 DCV   I                        0.0000947
+10 J1       7.2   218700000 wol                0.000219 DCV   J                        0.000244 
+11 K1       7.43  370200000 wol                0.000370 DCV   K                        0.000334 
+12 L1       7.5   436400000 wol                0.000436 DCV   L                        0.000245 
+# ℹ 5 more variables: total_virus <dbl>, log_total_virus <dbl>, log_IU_ml <dbl>,
+#   log_infectivity_ratio <dbl>, average_log_infectivity_ratio <dbl>
+[1] 1.159608
+[1] 1.159608
+[1] NaN
+[1] -0.4489619
+[1] NaN
+[1] 0.6235217
+[1] NaN
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2, weights = log_total_virus)
+
+Coefficients:
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)           -2.728e+01  8.486e+04       0        1
+treatmentwol          -7.535e-30  1.200e+05       0        1
+virusFHV               9.682e-15  1.200e+05       0        1
+treatmentwol:virusFHV -9.682e-15  1.697e+05       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.000e+00  on 11  degrees of freedom
+Residual deviance: 4.087e-10  on  8  degrees of freedom
+AIC: 8
+
+Number of Fisher Scoring iterations: 24
+
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment + virus, 
+    family = binomial, data = data_2)
+
+Coefficients:
+               Estimate Std. Error z value Pr(>|z|)
+(Intercept)  -2.457e+01  6.551e+04       0        1
+treatmentwol -4.990e-15  7.564e+04       0        1
+virusFHV      4.990e-15  7.564e+04       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.000e+00  on 11  degrees of freedom
+Residual deviance: 5.144e-10  on  9  degrees of freedom
+AIC: 6
+
+Number of Fisher Scoring iterations: 23
+
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment * virus, 
+    family = binomial, data = data_2)
+
+Coefficients:
+                        Estimate Std. Error z value Pr(>|z|)
+(Intercept)           -2.457e+01  7.564e+04       0        1
+treatmentwol           3.503e-30  1.070e+05       0        1
+virusFHV              -6.082e-15  1.070e+05       0        1
+treatmentwol:virusFHV  6.082e-15  1.513e+05       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.000e+00  on 11  degrees of freedom
+Residual deviance: 5.144e-10  on  8  degrees of freedom
+AIC: 8
+
+Number of Fisher Scoring iterations: 23
+
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment + virus, 
+    family = binomial, data = data_2)
+
+Coefficients:
+               Estimate Std. Error z value Pr(>|z|)
+(Intercept)  -2.457e+01  6.551e+04       0        1
+treatmentwol -4.990e-15  7.564e+04       0        1
+virusFHV      4.990e-15  7.564e+04       0        1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.000e+00  on 11  degrees of freedom
+Residual deviance: 5.144e-10  on  9  degrees of freedom
+AIC: 6
+
+Number of Fisher Scoring iterations: 23
+
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0
+Analysis of Deviance Table
+
+Model 1: average_log_infectivity_ratio ~ treatment * virus
+Model 2: average_log_infectivity_ratio ~ treatment + virus
+  Resid. Df Resid. Dev Df Deviance
+1         8  5.144e-10            
+2         9  5.144e-10 -1        0

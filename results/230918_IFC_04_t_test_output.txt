@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  average_log_infectivity_ratio by treatment
+t = -2.6597, df = 3.0738, p-value = 0.07442
+alternative hypothesis: true difference in means between group tet and group wol is not equal to 0
+95 percent confidence interval:
+ -0.041418367  0.003428295
+sample estimates:
+mean in group tet mean in group wol 
+        0.7256162         0.7446112 
+
