@@ -5,9 +5,48 @@ date: "2023-09-18"
 output: html_document
 ---
 
+## Editing log 
+18/09/23 - Making a more comprehensive log of the analysis that was conducted. 
+
+## QUESTIONS
+
+* Do I need to facet by the viral type or because it is a combined assay where the values are normalised should it just be one test for normality and skewness? (if separated into the two virus treatments then it only looks at like 3 data points so can you really determine a distribution using that amount of information?)
+
 ## Experiment Description 
 Virus: DCV and FHV 
 Assay: 04 measuring infectivity ratio 
+
+## Meeting with Andrew to discuss analysis 
+
+Infectivity 04 quantifying the impact of Wolbachia on the infectivity of progeny particles 
+
+	- Statistical analysis: Put results from infectivity of two viruses into the same model (would this be mapping the difference of the ratio between Wolbachia and Tet flies rather than the actual infectivity ratios?) 
+	- What would you recommend?
+- IR ~ Wolbachia + Virus  
+- IR ~ Wolbachia * Virus 
+	- Compare those two models see which one is better
+
+IR (Tet + DCV) = 0.01 
+IR (Wol +DCV) = 0.01 + x1 
+IR (Tet +FHV) = 0.01 + x2 
+IR (Wol+ FHV) = 0.01 + x1 + x2 + x3 
+
+ Analysis 
+	- GLM for ratio (0,1) 
+	- My ratio will always be between 0 and 1 because you can't have more IU than virus particles 
+		- 1. Beta regression (if not dealing with whole numbers) 
+		- 2. Logistic regression GLm (y~ x, family = binomial) 
+			- Whole numbers 
+			- Andrew suggested this one if i have whole numbers 
+			- Google has the answers 
+			- let him know if I need a hand 
+			- I think I want multinomial 
+
+	1. Transform the data because it is not normally distributed (lognormal?) (transform the data before taking the ratio (because if you take the log of the ratio it does weird things and it is no longer 0-1) 
+	2. Conduct a T-teston  the viruses separately ( = 5df) 
+	3. GLM (with and without an interaction) (= 8df) do an ANOVA (also check AIC) to figure out if these are the same things. 
+	4. See if the output is the same  
+	5. Choose which to present in the paper the simple version and then have the complicated version in the appendix
 
 ## Description of RMD
 
@@ -45,56 +84,160 @@ library(ggpubr)
 library(moments)
 library()
 ```
-
+## Transformation 
+Transform the data because it is not normally distributed. Log10.
+Transform the total and infectious virus before taking the ratio. 
+log10(IU)/log10Total
+If you take the log of the ratio it does weird things and it is no longer 0-1.  
 
 ```{r 1. Transformation}
 # Reading the data (from laptop)
 data <- read.csv("/Users/angeliqueasselin/Documents/GitHub/infectivity_04/analysed/230131_Analysed_FHV_DCV.csv")
 
+
 # Transforming the data 
 c <- rep(1e+12, times =24) 
 
+# log10 transformation
 data <- data %>% 
   mutate(total_virus = c) %>% 
-  mutate(log_total_virus = log(total_virus)) %>% 
-  mutate(log_IU_ml = log(IU_mL)) %>% 
-  mutate(log_infectivity_ratio = log_IU_ml/log_total_virus) %>% 
-  mutate(other_log_infect_ratio = log(IU_mL/total_virus)) %>% 
-  mutate(other = log(average_infectivity_ratio))
+  mutate(log_total_virus = log10(total_virus)) %>% 
+  mutate(log_IU_ml = log10(IU_mL)) %>% 
+  mutate(log_infectivity_ratio = log_IU_ml/log_total_virus)
 
 data_1 <- data %>%
   group_by(biol_rep) %>%
   mutate(average_log_infectivity_ratio = mean(log_infectivity_ratio)) 
-```
-## 2. Assumption test 
-This confirms that logtransforming the data was appropriate. 
 
-Results 
-Un-transformed skewness = 1.15 
-Transformed skewness = -0.314
-
-
-
-```{r 2. Assumptions}
-## Check the assumptions of normality of the data ##
-
-# Distribution of ratio variable compared to normal
-# Normality of un-transformed data
-ggdensity(data_1, x = "average_infectivity_ratio", fill = "grey")+
-  stat_overlay_normal_density(color = "red", linetype = "dashed")
-skewness(data_1$average_infectivity_ratio, na.rm = TRUE) # 1.15 
-
-
-# Normality of transformed data 
-ggdensity(data_1, x = "average_log_infectivity_ratio", fill = "grey")+
-  stat_overlay_normal_density(color = "red", linetype = "dashed")
-skewness(data_1$average_log_infectivity_ratio, na.rm = TRUE) # -0.314
-
-## Collapsing the dataframe so there is only one point for each biol rep that is the average of two tech reps 
+# Collapsing the dataframe so there is only one point for each biol rep that is the average of two tech reps 
 
 c <- seq(from = 1, by =2, length.out = 12)
 data_2 <- data_1[c,]
 
+# Formating
 
+data_2 <-data_2 %>%  
+  mutate(average_log_infectivity_ratio = as.integer(average_log_infectivity_ratio))
+
+# Subset data based on the virus 
+data_DCV <- data_2 %>% 
+  subset(virus == "DCV")
+
+data_FHV <- data_2 %>% 
+  subset(virus == "FHV")
 
 ```
+
+## 2. Assumption test 
+This confirms that logtransforming the data was appropriate. 
+Because there are two viruses here I think that they might have a biphasic distribution (therefore check for normality grouping by virus?)
+
+Measuring skewness 
+Examples of distributions with  skewness include the following.
+
+skewness = 0: A normal distribution or symmetric distribution 
+skewness = less 1 :A half-normal distribution 
+skewness = 2: An exponential distribution has a 
+skewness = positive: A lognormal distribution 
+
+Results 
+Both viruses considered together 
+Un-transformed skewness = 1.15 
+Transformed skewness = -0.314
+
+DCV
+Un-transformed skewness =  -0.4489619
+Transformed skewness =-0.2971849
+
+FHV
+Un-transformed skewness =  0.6235217
+Transformed skewness = -0.6460759
+
+Conclusions 
+It appears that the entire dataset has a lognormal distribution that is normalised (reduced to close to three and defs below 1 when log10 transformed)
+Continue with the log10 transformation unless otherwise decided. 
+
+```{r 2. Assumptions}
+## Plotting distribution of data ## 
+# Normality of un-transformed data
+ggdensity(data_2, x = "average_infectivity_ratio", fill = "grey")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Normality of transformed data 
+ggdensity(data_2, x = "average_log_infectivity_ratio", fill = "grey")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Normality of un-transformed data SORTED BY VIRUS
+ggdensity(data_2, x = "average_infectivity_ratio", fill = "grey", facet.by = "virus")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Normality of transformed data SORTED BY VIRUS
+ggdensity(data_2, x = "average_log_infectivity_ratio", fill = "grey", facet.by = "virus")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+## Formally assess normality ## 
+skewness(data_2$average_infectivity_ratio, na.rm = TRUE) # 1.15 
+skewness(data_2$average_log_infectivity_ratio, na.rm = TRUE) # -0.314
+
+skewness(data_DCV$average_infectivity_ratio, na.rm = TRUE) # -0.44
+skewness(data_DCV$average_log_infectivity_ratio, na.rm = TRUE) # -0.29
+
+skewness(data_FHV$average_infectivity_ratio, na.rm = TRUE) # 0.623
+skewness(data_FHV$average_log_infectivity_ratio, na.rm = TRUE) # -0.646
+```
+## 3. T-test
+
+Results 
+```{r 3. T-test}
+#DCV 
+t_test_DCV <- t.test(data = data_DCV, 
+                 average_log_infectivity_ratio ~ treatment)
+
+#FHV 
+t_test_FHV<- t.test(data = data_FHV, 
+                 average_log_infectivity_ratio ~ treatment)
+```
+
+```{r 2. T-test Exporting results (RUN OUTSIDE RMD)}
+ # Exports T-test output 
+
+# DCV 
+sink("results/230918_IFB_04_t_test_output.txt") # change file name
+print(t_test_DCV) # prints coxme output to txt file
+sink() # closes the connection **CRITICAL**
+
+# FHV
+sink("results/230918_IFC_04_t_test_output.txt") # change file name
+print(t_test_FHV) # prints coxme output to txt file
+sink() # closes the connection **CRITICAL**
+
+```
+ Results 
+ 
+ * 3 df with no interaction 
+ * 4 df with interaction 
+ * no interaction was a better model (AIC smaller )
+```{r 4. GLM }
+## GLM ## 
+# With interaction 
+model_1 <- glm(formula = average_log_infectivity_ratio ~ treatment * virus,
+             family = binomial, 
+             data = data_2)
+summary(model_1)
+
+# Without interaction
+model_2 <- glm(formula = average_log_infectivity_ratio ~ treatment + virus,
+             family = binomial, 
+             data = data_2)
+summary(model_2)
+
+# Best model AIC 
+AIC(model_1, model_2)
+
+# Comparing models ANOVA
+anova(model_1, model_2)
+
+```
+ 
+ Results 
+ 
