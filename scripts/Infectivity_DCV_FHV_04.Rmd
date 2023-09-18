@@ -5,21 +5,96 @@ date: "2023-09-18"
 output: html_document
 ---
 
-## R Markdown
+## Experiment Description 
+Virus: DCV and FHV 
+Assay: 04 measuring infectivity ratio 
 
-This document is a log of the analysis conducted for the infectivity assay of the 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Description of RMD
 
-```{r cars}
-summary(cars)
+This document is a log of the analysis conducted for the infectivity assay. 
+This looks at the infectivity ratio infectious/total virus particles of 
+DCV and FHV grown in the presence and absence of Wolbachia. 
+
+## Statistical Approach 
+
+ GLM for a ratio (0,1)
+Logitic regression GLM( y ~x, family = binomial)
+IR ~ Wolbachia + Virus (No interaction)
+IR ~ Wolbachia * Virus 
+
+Steps
+ 1. Transformation (log scale)
+ 2. Check assumptions
+ 3. t-test 
+ 4. GLM 
+ 5. Compare outputs 
+ 6. Choose presentation 
+ 
+ 
+ 
+```{r Install Packages}
+install.packages("ggdensity")
+
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r Preparation}
+library(tidyverse)
+library(ggplot2)
+library(ggdensity)
+library(ggpubr)
+library(moments)
+library()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r 1. Transformation}
+# Reading the data (from laptop)
+data <- read.csv("/Users/angeliqueasselin/Documents/GitHub/infectivity_04/analysed/230131_Analysed_FHV_DCV.csv")
+
+# Transforming the data 
+c <- rep(1e+12, times =24) 
+
+data <- data %>% 
+  mutate(total_virus = c) %>% 
+  mutate(log_total_virus = log(total_virus)) %>% 
+  mutate(log_IU_ml = log(IU_mL)) %>% 
+  mutate(log_infectivity_ratio = log_IU_ml/log_total_virus) %>% 
+  mutate(other_log_infect_ratio = log(IU_mL/total_virus)) %>% 
+  mutate(other = log(average_infectivity_ratio))
+
+data_1 <- data %>%
+  group_by(biol_rep) %>%
+  mutate(average_log_infectivity_ratio = mean(log_infectivity_ratio)) 
+```
+## 2. Assumption test 
+This confirms that logtransforming the data was appropriate. 
+
+Results 
+Un-transformed skewness = 1.15 
+Transformed skewness = -0.314
+
+
+
+```{r 2. Assumptions}
+## Check the assumptions of normality of the data ##
+
+# Distribution of ratio variable compared to normal
+# Normality of un-transformed data
+ggdensity(data_1, x = "average_infectivity_ratio", fill = "grey")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+skewness(data_1$average_infectivity_ratio, na.rm = TRUE) # 1.15 
+
+
+# Normality of transformed data 
+ggdensity(data_1, x = "average_log_infectivity_ratio", fill = "grey")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+skewness(data_1$average_log_infectivity_ratio, na.rm = TRUE) # -0.314
+
+## Collapsing the dataframe so there is only one point for each biol rep that is the average of two tech reps 
+
+c <- seq(from = 1, by =2, length.out = 12)
+data_2 <- data_1[c,]
+
+
+
+```
