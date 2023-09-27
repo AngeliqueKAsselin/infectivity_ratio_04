@@ -7,6 +7,7 @@ output: html_document
 
 ## Editing log 
 18/09/23 - Making a more comprehensive log of the analysis that was conducted. 
+27/09/23 - Changing the FHV symbols on the graph so there are four columns for the four treatments (have the labels on the graph) Extend the axis to give a better idea of scale. 
 
 ## QUESTIONS
 
@@ -280,11 +281,10 @@ summary_data <- data_2 %>%
   )
 
 # Graphing the data 
-infectivity <- ggplot(data_2) +
-  geom_jitter(aes(treatment, 
-                  average_infectivity_ratio, 
-                  col = treatment, 
-                  shape = virus), 
+infectivity <-  ggplot(data_2) +
+  geom_jitter(aes(x = interaction(treatment,virus), 
+                  y = average_infectivity_ratio, 
+                  col = treatment), 
               size = 5, 
               position = position_jitter(width = 0.1), 
               show.legend = FALSE)  + 
@@ -292,7 +292,9 @@ infectivity <- ggplot(data_2) +
   scale_shape_manual(values = c(16, 1)) +
   stat_summary(
     data = summary_data,
-    aes(x = treatment, y = Mean, group = virus),
+    aes(x = interaction(treatment, virus),
+        y = Mean, 
+        group = virus),
     fun.data = mean_se,
     geom = "crossbar",
     width = 0.2,  # Adjust the width of the bars
@@ -301,7 +303,10 @@ infectivity <- ggplot(data_2) +
   # Adjust the appearance of summary bars and error bars
   geom_errorbar(
     data = summary_data,
-    aes(x = treatment, ymin = Mean - SE, ymax = Mean + SE, group = virus),
+    aes(x = interaction(treatment,virus),
+        ymin = Mean - SE, 
+        ymax = Mean + SE, 
+        group = virus),
     width = 0.1,  # Width of error bars
     col = c("red", "red", "black", "black" )  # Color of error bars
   ) + 
@@ -312,7 +317,10 @@ infectivity <- ggplot(data_2) +
         axis.title = element_text(size = 30, face = "bold", colour = "black"),  # center justify axis title text
         axis.title.y = element_text(size = 30, face = "bold", colour = "black", hjust = 0.5, vjust = 0.1),  # center text on the Y-axis
         axis.text = element_text(size = 30, face = "bold", colour = "black"),  # increase size of axis tick labels 
-        plot.title = element_text(size = 30 ))  # increase size of plot title text 
+        plot.title = element_text(size = 30 )) +# increase size of plot title text 
+   coord_cartesian(ylim = c(0, 0.01)) + # sets the maximum y-axis 
+   scale_x_discrete(labels = c("W- DCV", "W+ DCV", "W- FHV", "W+ FHV"))  # Set custom labels
+ 
 ```
 
 
