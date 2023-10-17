@@ -8,6 +8,7 @@ output: html_document
 ## Editing log 
 18/09/23 - Making a more comprehensive log of the analysis that was conducted. 
 27/09/23 - Changing the FHV symbols on the graph so there are four columns for the four treatments (have the labels on the graph) Extend the axis to give a better idea of scale. 
+17/10/23 - Extracting the calculated specific infectivity ratios to compare with the literature FHV = 1 PFU : 300 total Schneeman et al. 1992
 
 ## QUESTIONS
 
@@ -131,6 +132,50 @@ data_DCV <- data_2 %>%
 
 data_FHV <- data_2 %>% 
   subset(virus == "FHV")
+
+# Subset the data based on the Wolbachia status 
+
+data_DCV_no_Wol <- data_DCV %>% 
+  subset(treatment == "W-")
+  
+data_DCV_Wol <- data_DCV %>% 
+  subset(treatment == "W+")
+
+data_FHV_no_Wol <- data_FHV %>% 
+  subset(treatment == "W-")
+  
+data_FHV_Wol <- data_FHV %>% 
+  subset(treatment == "W+")
+
+# Calculating the infectivity 
+
+DCV_no_Wol_infect <- (sum(data_DCV_no_Wol$average_infectivity_ratio))/3
+DCV_Wol_infect <- (sum(data_DCV_Wol$average_infectivity_ratio))/3
+FHV_no_Wol_infect <- (sum(data_FHV_no_Wol$average_infectivity_ratio))/3
+FHV_Wol_infect <- (sum(data_FHV_Wol$average_infectivity_ratio))/3
+
+# Calculating the number of total particles to 1 infectious particle 
+DCV_no_Wol_number_infect_total <- 1/DCV_no_Wol_infect
+DCV_Wol_number_infect_total <- 1/DCV_Wol_infect
+FHV_no_Wol_number_infect_total <- 1/FHV_no_Wol_infect
+FHV_Wol_number_infect_total <- 1/FHV_Wol_infect
+
+# Creating a table with these results 
+total_to_IU <- rbind(DCV_no_Wol_number_infect_total,DCV_Wol_number_infect_total,FHV_no_Wol_number_infect_total,FHV_Wol_number_infect_total)
+total_to_IU <- round(total_to_IU, digits = 0)
+
+Virus <-  c("DCV W-", "DCV W+", "FHV W-", "FHV W+")
+
+infect_number <- as.data.frame(total_to_IU) 
+infect_number <- infect_number %>% 
+  rename( "Total Virus to 1 infectious particle" = "V1") %>% 
+  tibble::rownames_to_column( "Delete") %>% 
+  cbind(Virus) %>% 
+  select(Virus, "Total Virus to 1 infectious particle", -Delete)
+
+# Exporting the table 
+write.csv(infect_number, file = "/Users/angeliqueasselin/Documents/GitHub/infectivity_04/results/231017_Total_virus_to_infectious_virus.csv" )
+
 
 ```
 
