@@ -1,0 +1,11 @@
+
+Call:  glm(formula = average_log_infectivity_ratio ~ treatment + virus, 
+    family = binomial, data = data_2)
+
+Coefficients:
+(Intercept)  treatmentW+     virusFHV  
+    0.74723      0.08929      0.22938  
+
+Degrees of Freedom: 11 Total (i.e. Null);  9 Residual
+Null Deviance:	    0.04483 
+Residual Deviance: 0.007648 	AIC: 14.18

@@ -1,67 +1,18 @@
 ---
-title: "Infectivity_DCV_FHV_04"
+title: "Infectivity_DCV_FHV_Figure_3"
 author: "Angelique Asselin"
 date: "2023-09-18"
 output: html_document
 ---
 
-## Editing log 
-18/09/23 - Making a more comprehensive log of the analysis that was conducted. 
-27/09/23 - Changing the FHV symbols on the graph so there are four columns for the four treatments (have the labels on the graph) Extend the axis to give a better idea of scale. 
-17/10/23 - Extracting the calculated specific infectivity ratios to compare with the literature FHV = 1 PFU : 300 total Schneeman et al. 1992
-
-## QUESTIONS
-
-* Do I need to facet by the viral type or because it is a combined assay where the values are normalised should it just be one test for normality and skewness? (if separated into the two virus treatments then it only looks at like 3 data points so can you really determine a distribution using that amount of information?)
 
 ## Experiment Description 
 Virus: DCV and FHV 
-Assay: 04 measuring infectivity ratio 
+This document contains the analysis comparing the infectivity of virus grown in the presence or absence of Wolbachia. 
+Overal to measure the impact of Wolbachia on the infectivity of DCV and FHV. Infectivity was measured as the number of infectious virus /total virus 
 
-## Meeting with Andrew to discuss analysis 
 
-Infectivity 04 quantifying the impact of Wolbachia on the infectivity of progeny particles 
-
-	- Statistical analysis: Put results from infectivity of two viruses into the same model (would this be mapping the difference of the ratio between Wolbachia and Tet flies rather than the actual infectivity ratios?) 
-	- What would you recommend?
-- IR ~ Wolbachia + Virus  
-- IR ~ Wolbachia * Virus 
-	- Compare those two models see which one is better
-
-IR (Tet + DCV) = 0.01 
-IR (Wol +DCV) = 0.01 + x1 
-IR (Tet +FHV) = 0.01 + x2 
-IR (Wol+ FHV) = 0.01 + x1 + x2 + x3 
-
- Analysis 
-	- GLM for ratio (0,1) 
-	- My ratio will always be between 0 and 1 because you can't have more IU than virus particles 
-		- 1. Beta regression (if not dealing with whole numbers) 
-		- 2. Logistic regression GLm (y~ x, family = binomial) 
-			- Whole numbers 
-			- Andrew suggested this one if i have whole numbers 
-			- Google has the answers 
-			- let him know if I need a hand 
-			- I think I want multinomial 
-
-	1. Transform the data because it is not normally distributed (lognormal?) (transform the data before taking the ratio (because if you take the log of the ratio it does weird things and it is no longer 0-1) 
-	2. Conduct a T-teston  the viruses separately ( = 5df) 
-	3. GLM (with and without an interaction) (= 8df) do an ANOVA (also check AIC) to figure out if these are the same things. 
-	4. See if the output is the same  
-	5. Choose which to present in the paper the simple version and then have the complicated version in the appendix
-
-## Description of RMD
-
-This document is a log of the analysis conducted for the infectivity assay. 
-This looks at the infectivity ratio infectious/total virus particles of 
-DCV and FHV grown in the presence and absence of Wolbachia. 
-
-## Statistical Approach 
-
- GLM for a ratio (0,1)
-Logitic regression GLM( y ~x, family = binomial)
-IR ~ Wolbachia + Virus (No interaction)
-IR ~ Wolbachia * Virus 
+## Approach
 
 Steps
  1. Transformation (log scale) DONE
@@ -69,62 +20,71 @@ Steps
  3. t-test DONE
  4. GLM DONE
  5. Compare outputs DONE 
- 6. Choose presentation 
+ 6. Presentation DONE
  
+# Preparation 
  
- 
-```{r Install Packages}
-install.packages("ggdensity")
-
-```
-
-```{r Preparation}
+```{r Preparation loading libraries}
 library(tidyverse)
 library(ggplot2)
 library(ggdensity)
 library(ggpubr)
 library(moments)
-
+library(car)
+library(rstatix)
 ```
+
+## Importing Data 
+sample        = Sample number
+IU_mL         = Measure of concentration of infectious particles (IU/ml)
+treatment     = Whether the progeny virus was grown in flies with or without Wolbachia W- W+ 
+virus         = The type of progeny virus DCV or FHV
+biol_rep      = The biological replicate
+total_virus   = Concentration of total virus (Total/ml)
+
+```{r Importing data}
+# Importing measures of infectious particles and total particles
+data <- as.data.frame(read_csv("Infectivity_DCV_FHV_Figure_3_data.csv"))
+```
+
+
 ## Transformation 
 Transform the data because it is not normally distributed. Log10.
 Transform the total and infectious virus before taking the ratio. 
-log10(IU)/log10Total
-If you take the log of the ratio it does weird things and it is no longer 0-1.  
+Infectivity = log10(IU)/log10Total
+ 
 
 ```{r 1. Transformation}
-# Reading the data (from laptop)
-data <- read.csv("/Users/angeliqueasselin/Documents/GitHub/infectivity_04/analysed/230131_Analysed_FHV_DCV.csv")
-
-
-# Transforming the data 
-c <- rep(1e+12, times =24) 
 
 # log10 transformation
 data <- data %>% 
-  mutate(total_virus = c) %>% 
   mutate(log_total_virus = log10(total_virus)) %>% 
   mutate(log_IU_ml = log10(IU_mL)) %>% 
-  mutate(log_infectivity_ratio = log_IU_ml/log_total_virus)
+  mutate(log_infectivity_ratio = log_IU_ml/log_total_virus) %>% 
+  mutate(infectivity_ratio = IU_mL/total_virus)
 
 data_1 <- data %>%
   group_by(biol_rep) %>%
-  mutate(average_log_infectivity_ratio = mean(log_infectivity_ratio)) 
+  mutate(average_log_infectivity_ratio = mean(log_infectivity_ratio)) %>% 
+  mutate(average_infectivity_ratio = mean(infectivity_ratio))
 
 # Collapsing the dataframe so there is only one point for each biol rep that is the average of two tech reps 
 
 c <- seq(from = 1, by =2, length.out = 12)
 data_2 <- data_1[c,]
 
-# Formating
-
+# Formatting
 data_2 <-data_2 %>%  
-  mutate(average_log_infectivity_ratio = as.integer(average_log_infectivity_ratio))
+  mutate(average_log_infectivity_ratio = as.double(average_log_infectivity_ratio)) %>% 
+  mutate(treatment = as.factor(treatment)) %>% 
+  mutate(virus = as.factor(virus))
 
 # Changing the names of the treatments 
 # Changing it so that it is W- for Tet and W+ for Wol 
 data_2$treatment <- gsub("tet", "W-", data_2$treatment)
 data_2$treatment <- gsub("wol", "W+", data_2$treatment)
+data_2$treatment <- factor(data_2$treatment, levels = c("W-", "W+"))
+data_2$virus <- factor(data_2$virus, levels = c("DCV", "FHV"))
 
 # Subset data based on the virus 
 data_DCV <- data_2 %>% 
@@ -173,13 +133,9 @@ infect_number <- infect_number %>%
   cbind(Virus) %>% 
   select(Virus, "Total Virus to 1 infectious particle", -Delete)
 
-# Exporting the table 
-write.csv(infect_number, file = "/Users/angeliqueasselin/Documents/GitHub/infectivity_04/results/231017_Total_virus_to_infectious_virus.csv" )
-
-
 ```
 
-## 2. Assumption test 
+## 2. Assumptions
 This confirms that logtransforming the data was appropriate. 
 Because there are two viruses here I think that they might have a biphasic distribution (therefore check for normality grouping by virus?)
 
@@ -249,33 +205,17 @@ t_test_FHV<- t.test(data = data_FHV,
                  average_log_infectivity_ratio ~ treatment)
 ```
 
-```{r 2. T-test Exporting results (RUN OUTSIDE RMD)}
- # Exports T-test output 
-
-# DCV 
-sink("results/230918_IFB_04_t_test_output.txt") # change file name
-print(t_test_DCV) # prints coxme output to txt file
-sink() # closes the connection **CRITICAL**
-
-# FHV
-sink("results/230918_IFC_04_t_test_output.txt") # change file name
-print(t_test_FHV) # prints coxme output to txt file
-sink() # closes the connection **CRITICAL**
-
-```
- 
- 
- ## 4. GLM 
+## 4. GLM 
 
  Results 
  
  * 3 df with no interaction 
  * 4 df with interaction 
- * no interaction was a better model (AIC smaller )
+ * no interaction was a better model (AIC smaller)
  * I don't think there is really a difference in the model (deviance ANOVA = 0 )
- 
- Future 
  * Use the model 2
+ 
+ 
 ```{r 4. GLM }
 ## GLM ## 
 # With interaction 
@@ -297,21 +237,33 @@ AIC(model_1, model_2)
 anova(model_1, model_2)
 
 ```
-```{r 3. GLM exporting results(RUN OUTSIDE RMD) }
-# Exports GLM
 
-# DCV and FHV model 
-sink("results/230918_IFB_IFC_04_GLM_output.txt") # change file name
-print(model_2) # prints coxme output to txt file
-sink() # closes the connection **CRITICAL**
+# 4. GLM Assumptions
 
-# DCV and FHV model SUMMARY 
-sink("results/230918_IFB_IFC_04_GLM_output.txt") # change file name
-print(summary(model_2)) # prints coxme output to txt file
-sink() # closes the connection **CRITICAL**
+1. Homogeneity of variances (PASS)
+2. Normality (PASS)
+3. Outliers (PASS)
+
+
+```{r 4. GLM Assessing Assumptions}
+
+# 1. Homogeneity of variances
+plot(model_2, 1)
+leveneTest(average_log_infectivity_ratio ~ 
+             virus, 
+           data = data_2)
+
+# 2. Normality
+plot(model_2, 2)
+shapiro_test(residuals(model_2))
+
+# 3. Outliers 
+plot(model_2, 1)
+outlierTest(model_2)
 ```
 
-## 5. Presenting the results 
+
+# 5. Presenting the results 
 
 * error bars = SE 
 * bar is the mean 
@@ -331,7 +283,7 @@ infectivity <-  ggplot(data_2) +
                   y = average_infectivity_ratio, 
                   col = treatment), 
               size = 5, 
-              position = position_jitter(width = 0.1), 
+              position = position_jitter(width = 0.1, height = 0.0001), 
               show.legend = FALSE)  + 
   scale_color_manual(values = c("black", "red")) +
   scale_shape_manual(values = c(16, 1)) +
@@ -353,36 +305,59 @@ infectivity <-  ggplot(data_2) +
         ymax = Mean + SE, 
         group = virus),
     width = 0.1,  # Width of error bars
-    col = c("red", "red", "black", "black" )  # Color of error bars
+    col = c("black", "black", "red", "red" )  # Color of error bars
   ) + 
   theme_classic() +
   labs(x = "", 
-       y = expression(bold("Log Normalised infectivity ratio"))) +  # Use "\n" for line break
+       y = expression(bold("Infectivity ratio"))) +  # Use "\n" for line break
   theme(plot.margin = unit(c(3, 1, 1, 2), "lines"),  # adjust plot margins
         axis.title = element_text(size = 30, face = "bold", colour = "black"),  # center justify axis title text
         axis.title.y = element_text(size = 30, face = "bold", colour = "black", hjust = 0.5, vjust = 0.1),  # center text on the Y-axis
         axis.text = element_text(size = 30, face = "bold", colour = "black"),  # increase size of axis tick labels 
         plot.title = element_text(size = 30 )) +# increase size of plot title text 
-   coord_cartesian(ylim = c(0, 0.01)) + # sets the maximum y-axis 
-   scale_x_discrete(labels = c("W- DCV", "W+ DCV", "W- FHV", "W+ FHV"))  # Set custom labels
- 
+  coord_cartesian(ylim = c(0, 0.005)) + # sets the maximum y-axis 
+  scale_x_discrete(labels = c("W-\n DCV", "W+\n DCV", "W-\n FHV", "W+\n FHV")) +
+  scale_y_continuous(breaks = c(0,0.0025, 0.005))
+
 ```
 
 
 ```{r Export plots run outside of RMD}
-# Exporting the results 
 
+# Exporting the specific infectivity summary table
+write.csv(infect_number, file = "Infectivity_DCV_FHV_Figure_3_Output_Specific_Infectivity.txt")
+
+# Exports T-test output 
+# DCV 
+sink("Infectivity_DCV_FHV_Figure_3_Output_DCV_T_test.txt") 
+print(t_test_DCV) 
+sink() # closes the connection **CRITICAL**
+
+# FHV
+sink("Infectivity_DCV_FHV_Figure_3_Output_FHV_T_test.txt") 
+print(t_test_FHV) 
+sink() # closes the connection **CRITICAL**
+
+# Exports GLM
+# DCV and FHV model 
+sink("Infectivity_DCV_FHV_Figure_3_Output_GLM.txt") # change file name
+print(model_2) # prints coxme output to txt file
+sink() # closes the connection **CRITICAL**
+
+# DCV and FHV model SUMMARY 
+sink("Infectivity_DCV_FHV_Figure_3_Output_GLM_summary.txt") # change file name
+print(summary(model_2)) # prints coxme output to txt file
+sink() # closes the connection **CRITICAL**
+
+# Exporting figure
 today <- Sys.Date()
 date <- format(today, format = "%y%m%d")
-
-# Saving plot
-name <- paste(date, "IFB","IFC", "infectivity", "04", sep = "_")
+name <- paste(date, "Figure", "3",  sep = "_")
 pdf_name <- paste(name, "pdf", sep = ".")
 ggsave(filename = pdf_name,
-       path = "figures",
        plot = infectivity, 
-       width = 15, 
-       height = 7.5)
+       width = 8, 
+       height = 4)
 
 ```
 

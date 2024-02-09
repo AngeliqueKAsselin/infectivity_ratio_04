@@ -1,0 +1,19 @@
+
+Call:
+glm(formula = average_log_infectivity_ratio ~ treatment + virus, 
+    family = binomial, data = data_2)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)  0.74723    1.08208   0.691    0.490
+treatmentW+  0.08929    1.27671   0.070    0.944
+virusFHV     0.22938    1.27799   0.179    0.858
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 0.0448251  on 11  degrees of freedom
+Residual deviance: 0.0076485  on  9  degrees of freedom
+AIC: 14.179
+
+Number of Fisher Scoring iterations: 4
+

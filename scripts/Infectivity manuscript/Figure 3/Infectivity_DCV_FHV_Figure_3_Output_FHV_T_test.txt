@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  average_log_infectivity_ratio by treatment
+t = -2.6447, df = 3.0645, p-value = 0.07563
+alternative hypothesis: true difference in means between group W- and group W+ is not equal to 0
+95 percent confidence interval:
+ -0.041445785  0.003580443
+sample estimates:
+mean in group W- mean in group W+ 
+       0.7256601        0.7445928 
+
